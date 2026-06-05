@@ -1,6 +1,6 @@
 <!-- Debt Freedom Tracker - single-file app for GitHub Pages -->
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -16,7 +16,8 @@
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-    background:var(--bg);color:var(--text);line-height:1.45;-webkit-font-smoothing:antialiased;padding:28px 20px 80px}
+    background:var(--bg);color:var(--text);line-height:1.45;-webkit-font-smoothing:antialiased;
+    padding:28px 20px calc(96px + env(safe-area-inset-bottom))}
   .wrap{max-width:960px;margin:0 auto}
   header.app{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:26px;flex-wrap:wrap}
   .brand{display:flex;align-items:center;gap:12px}
@@ -52,8 +53,8 @@
 
   .panel{background:var(--surface);border:1px solid var(--border-soft);border-radius:var(--radius);padding:20px;margin-bottom:18px}
   .panel h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);font-weight:600;margin-bottom:14px}
-  .seg{display:inline-flex;background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:4px;gap:4px}
-  .seg button{font:inherit;cursor:pointer;border:none;background:transparent;color:var(--text-dim);padding:8px 16px;border-radius:7px;font-size:13.5px;font-weight:500;transition:.15s}
+  .seg{display:flex;flex-wrap:wrap;background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:4px;gap:4px}
+  .seg button{flex:1 1 auto;font:inherit;cursor:pointer;border:none;background:transparent;color:var(--text-dim);padding:8px 14px;border-radius:7px;font-size:13.5px;font-weight:500;transition:.15s;white-space:nowrap}
   .seg button.active{background:var(--accent);color:#fff}
   .seg button:not(.active):hover{color:var(--text)}
   .strat-desc{font-size:12.5px;color:var(--text-faint);margin-top:11px;min-height:16px}
@@ -83,15 +84,17 @@
   .pie-row{display:flex;gap:26px;align-items:center;margin-top:6px;flex-wrap:wrap}
   .pie-box{position:relative;width:190px;height:190px;flex-shrink:0}
   .pie-legend{flex:1;min-width:200px;display:flex;flex-direction:column;gap:11px}
-  .leg-item{display:flex;align-items:center;gap:11px;font-size:14px}
+  .leg-item{display:flex;align-items:center;gap:11px;font-size:14px;cursor:pointer}
   .leg-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
   .leg-name{color:var(--text-dim);flex:1}
   .leg-val{font-weight:600}
   .leg-val em{color:var(--text-faint);font-style:normal;font-weight:500;font-size:12.5px;margin-left:5px}
 
-  .acct-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:26px 0 14px}
+  .type-header{background:var(--surface);border:1px solid var(--border-soft);border-left-width:3px;border-radius:var(--radius);padding:14px 16px;margin-bottom:8px}
+  .th-title{display:flex;align-items:center;gap:8px}
+  .th-sub{font-size:12.5px;color:var(--text-dim);margin-top:8px}
+  .acct-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:22px 0 14px}
   .acct-head h2{font-size:16px;font-weight:600}
-  .group-head{display:flex;align-items:center;justify-content:space-between;margin:22px 0 10px}
   .group-total{font-size:13px;color:var(--text-dim);font-weight:600}
   .acct{background:var(--surface);border:1px solid var(--border-soft);border-radius:var(--radius);padding:16px 18px;margin-bottom:12px;transition:.15s}
   .acct:hover{border-color:var(--border)}
@@ -120,15 +123,22 @@
   .pay-check.done .box{background:var(--good);border-color:var(--good)}
   .warn-chip{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:3px 8px;border-radius:20px;background:#3a2a12;color:#e0a33b;border:1px solid #5a4420}
   .warn-note{font-size:12px;color:#d9a441;margin-top:9px;display:flex;align-items:flex-start;gap:6px;line-height:1.4}
+  .cf-note{font-size:11.5px;color:#4a90d9;margin-top:8px}
   .done-acct{opacity:.9;border-color:#22302a;background:linear-gradient(180deg,#16201b,var(--surface))}
   .done-acct .acct-name{color:var(--text-dim)}
   .done-badge{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:3px 8px;border-radius:20px;background:rgba(58,157,110,.16);color:var(--good);border:1px solid #2c5a45}
-  .debtfree{background:linear-gradient(160deg,#16241c,#16201b);border:1px solid #2c5a45;border-radius:var(--radius);padding:18px 20px;margin:24px 0 14px;text-align:center;color:var(--good);font-size:15px;font-weight:650}
+  .debtfree{background:linear-gradient(160deg,#16241c,#16201b);border:1px solid #2c5a45;border-radius:var(--radius);padding:18px 20px;margin:8px 0 14px;text-align:center;color:var(--good);font-size:15px;font-weight:650}
+  .muted-line{color:var(--text-dim);font-size:13px;padding:10px 2px}
 
   .empty{text-align:center;padding:60px 20px;color:var(--text-dim)}
   .empty .big{font-size:42px;margin-bottom:10px;opacity:.6}
   .empty h3{font-size:17px;color:var(--text);font-weight:600;margin-bottom:6px}
   .empty p{font-size:13.5px;max-width:340px;margin:0 auto 18px}
+
+  .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;background:rgba(18,18,21,0.93);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--border);padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+  .tabbar button{flex:1;background:none;border:none;color:var(--text-faint);font:inherit;font-size:10.5px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 2px;cursor:pointer;border-radius:10px;transition:.15s}
+  .tabbar button .ti{font-size:19px;line-height:1}
+  .tabbar button.active{color:var(--accent-bright)}
 
   .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
   .overlay.show{display:flex}
@@ -153,7 +163,7 @@
   .footnote{text-align:center;font-size:11.5px;color:var(--text-faint);margin-top:34px}
   .footnote b{color:var(--text-dim);font-weight:600}
 
-  @media(max-width:680px){.cards{grid-template-columns:repeat(2,1fr)}body{padding:20px 14px 60px}}
+  @media(max-width:680px){.cards{grid-template-columns:repeat(2,1fr)}body{padding:20px 14px calc(90px + env(safe-area-inset-bottom))}}
 </style>
 
 <div class="wrap">
@@ -171,7 +181,7 @@
   </header>
 
   <div id="content"></div>
-  <p class="footnote">Your data is saved privately in this browser. Back up to Obsidian so a cleared cache can't wipe it. · <b>v7</b></p>
+  <p class="footnote">Your data is saved privately in this browser. Back up to Obsidian so a cleared cache can't wipe it. · <b>v12</b></p>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -259,10 +269,10 @@
   "use strict";
 
   var TYPES={
-    card:{label:'Credit Card',color:'#e0493b'},
-    loan:{label:'Loan',color:'#4a90d9'},
-    bnpl:{label:'BNPL',color:'#d9a441'},
-    other:{label:'Other',color:'#8a8a93'}
+    card:{label:'Credit Card',color:'#e0493b',short:'Cards',icon:'💳'},
+    loan:{label:'Loan',color:'#4a90d9',short:'Loans',icon:'🏦'},
+    bnpl:{label:'BNPL',color:'#d9a441',short:'BNPL',icon:'🛍️'},
+    other:{label:'Other',color:'#8a8a93',short:'Other',icon:'📁'}
   };
   var TYPE_ORDER=['card','loan','bnpl','other'];
   var FILENAME='debt-tracker-backup.md';
@@ -277,8 +287,10 @@
   var extra=load('dft_extra',0);
   var strategy=load('dft_strategy','avalanche');
   var sortBy=load('dft_sort','priority');
+  if(sortBy==='type')sortBy='priority';
   var customOrder=load('dft_order',accounts.map(function(a){return a.id;}));
   var lastBackup=load('dft_lastbackup',null);
+  var activeTab=load('dft_tab','dashboard');
   var editingId=null, chart=null, pieChart=null, payAcctId=null;
 
   accounts.forEach(function(a){
@@ -303,6 +315,8 @@
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function tColor(t){return (TYPES[t]||TYPES.other).color;}
   function tLabel(t){return (TYPES[t]||TYPES.other).label;}
+  function tShort(t){return (TYPES[t]||TYPES.other).short;}
+  function tIcon(t){return (TYPES[t]||TYPES.other).icon;}
   function normType(s){s=(s||'').toString().toLowerCase().replace(/[^a-z]/g,'');
     if(s.indexOf('card')>=0||s.indexOf('credit')>=0)return 'card';
     if(s.indexOf('bnpl')>=0||s.indexOf('buynow')>=0||s.indexOf('installment')>=0||s.indexOf('klarna')>=0||s.indexOf('affirm')>=0||s.indexOf('afterpay')>=0)return 'bnpl';
@@ -385,11 +399,13 @@
     }
   }
 
-  /* ---------- priority ---------- */
+  /* ---------- priority ordering ---------- */
+  function cfi(a){return a.min>0?a.balance/a.min:Infinity;}
   function priorityList(accts){
     var active=accts.filter(function(a){return a.balance>0.005;});
     if(strategy==='avalanche')return active.slice().sort(function(a,b){return (b.apr-a.apr)||(a.balance-b.balance);});
     if(strategy==='snowball')return active.slice().sort(function(a,b){return (a.balance-b.balance)||(b.apr-a.apr);});
+    if(strategy==='cashflow')return active.slice().sort(function(a,b){return (cfi(a)-cfi(b))||(a.balance-b.balance);});
     return active.slice().sort(function(a,b){return customOrder.indexOf(a.id)-customOrder.indexOf(b.id);});
   }
 
@@ -433,22 +449,35 @@
   var STRAT_DESC={
     avalanche:"Extra payments hit your highest-APR debt first. Mathematically saves the most interest.",
     snowball:"Extra payments clear your smallest balance first. Fast wins to keep you motivated.",
-    custom:"You set the order. Switch sort to Priority and use the arrows to choose what gets the extra first."
+    cashflow:"Targets the debt that frees the most monthly payment per dollar paid (lowest balance ÷ minimum). The fastest way to lower your required monthly outlay.",
+    custom:"You set the order. Use the arrows on each type tab (with sort set to Priority) to choose what gets the extra first."
   };
 
-  function sortedActive(){
-    var base=activeAccounts();
-    if(sortBy==='balance')return base.sort(function(a,b){return b.balance-a.balance;});
-    if(sortBy==='apr')return base.sort(function(a,b){return b.apr-a.apr;});
-    if(strategy==='custom')return base.sort(function(a,b){return customOrder.indexOf(a.id)-customOrder.indexOf(b.id);});
-    if(strategy==='avalanche')return base.sort(function(a,b){return (b.apr-a.apr)||(a.balance-b.balance);});
-    return base.sort(function(a,b){return (a.balance-b.balance)||(b.apr-a.apr);});
+  function sortTypeAccounts(arr){
+    if(sortBy==='balance')return arr.slice().sort(function(a,b){return b.balance-a.balance;});
+    if(sortBy==='apr')return arr.slice().sort(function(a,b){return b.apr-a.apr;});
+    if(strategy==='custom')return arr.slice().sort(function(a,b){return customOrder.indexOf(a.id)-customOrder.indexOf(b.id);});
+    if(strategy==='avalanche')return arr.slice().sort(function(a,b){return (b.apr-a.apr)||(a.balance-b.balance);});
+    if(strategy==='snowball')return arr.slice().sort(function(a,b){return (a.balance-b.balance)||(b.apr-a.apr);});
+    if(strategy==='cashflow')return arr.slice().sort(function(a,b){return (cfi(a)-cfi(b))||(a.balance-b.balance);});
+    return arr.slice();
   }
 
   function bannerHTML(){
     return '<div class="backup-banner'+(isStale()?' stale':'')+'">'+
       '<span class="bk-info'+(lastBackup&&!isStale()?' bk-fresh':'')+'"><span class="bk-ic">'+(lastBackup&&!isStale()?'✓':'⤓')+'</span>'+bkText()+'</span>'+
       '<button class="btn sm" id="bannerBackupBtn">Save to Obsidian</button></div>';
+  }
+
+  function presentTypes(){return TYPE_ORDER.filter(function(t){return accounts.some(function(a){return (a.type||'other')===t;});});}
+
+  function tabBar(types){
+    var tabs=[{id:'dashboard',label:'Overview',icon:'📊',color:'var(--accent-bright)'}];
+    types.forEach(function(t){tabs.push({id:t,label:tShort(t),icon:tIcon(t),color:tColor(t)});});
+    return '<div class="tabbar">'+tabs.map(function(tb){
+      var on=activeTab===tb.id;
+      return '<button data-tab="'+tb.id+'"'+(on?' class="active" style="color:'+tb.color+'"':'')+'><span class="ti">'+tb.icon+'</span>'+tb.label+'</button>';
+    }).join('')+'</div>';
   }
 
   function render(){
@@ -463,16 +492,31 @@
       return;
     }
 
+    var types=presentTypes();
+    if(activeTab!=='dashboard'&&types.indexOf(activeTab)<0)activeTab='dashboard';
+
     var active=activeAccounts();
-    var completed=accounts.filter(function(a){return !isActive(a);});
     var plan=simulatePlan(), base=simulateBaseline();
+    var focusId=(priorityList(active.map(function(a){return {id:a.id,balance:a.balance,apr:a.apr,min:a.min};}))[0]||{}).id;
+
+    var html='';
+    if(activeTab==='dashboard') html+=renderDashboard(plan,base,active);
+    else html+=renderTypeTab(activeTab,plan,focusId);
+    html+=tabBar(types);
+
+    el.innerHTML=html;
+    if(activeTab==='dashboard'){drawChart(plan,base);drawPie();}
+    wire();
+  }
+
+  function renderDashboard(plan,base,active){
     var totalDebt=active.reduce(function(s,a){return s+a.balance;},0);
     var minTotal=active.reduce(function(s,a){return s+a.min;},0);
+    var completed=accounts.filter(function(a){return !isActive(a);});
     var freeText=plan.stalled?'Never*':monthLabel(plan.months);
     var timeText=plan.stalled?'—':durationText(plan.months);
 
-    var html='';
-    html+='<div class="cards">';
+    var html='<div class="cards">';
     html+=card('Total debt',money(totalDebt),active.length+' active account'+(active.length===1?'':'s'));
     html+=card('Debt-free date',active.length?freeText:'—',active.length?timeText:'all clear 🎉',true);
     html+=card('Total interest',plan.stalled?'—':money(plan.interest),'over the payoff');
@@ -490,7 +534,7 @@
       }
 
       html+='<div class="panel"><h2>Payoff strategy</h2><div class="seg">'+
-        segBtn('avalanche','Avalanche')+segBtn('snowball','Snowball')+segBtn('custom','Custom')+'</div>';
+        segBtn('avalanche','Avalanche')+segBtn('snowball','Snowball')+segBtn('cashflow','Cash Flow')+segBtn('custom','Custom')+'</div>';
       html+='<div class="strat-desc">'+STRAT_DESC[strategy]+'</div>';
       var sliderMax=Math.max(1000,Math.ceil((minTotal*3)/50)*50);
       if(extra>sliderMax)sliderMax=Math.ceil(extra/50)*50;
@@ -503,45 +547,43 @@
         '<div class="legend"><span><i style="background:var(--accent-bright)"></i>Your plan</span>'+
         '<span><i style="background:#5a5a63"></i>Minimums only</span></div></div>'+
         '<div class="chart-box"><canvas id="chart"></canvas></div></div>';
+    } else if(completed.length>0){
+      html+='<div class="debtfree">🎉 Every account is paid off — you\'re debt-free!</div>';
     }
 
     html+='<div class="chart-panel"><div class="chart-head"><h2>Debt by type</h2></div>'+
       '<div class="pie-row"><div class="pie-box"><canvas id="pie"></canvas></div>'+
       '<div class="pie-legend" id="pieLegend"></div></div></div>';
+    return html;
+  }
 
-    var focusId=(priorityList(active.map(function(a){return {id:a.id,balance:a.balance,apr:a.apr,min:a.min};}))[0]||{}).id;
+  function renderTypeTab(type,plan,focusId){
+    var c=tColor(type);
+    var act=activeAccounts().filter(function(a){return (a.type||'other')===type;});
+    var comp=accounts.filter(function(a){return (a.type||'other')===type&&!isActive(a);});
+    var total=act.reduce(function(s,a){return s+a.balance;},0);
+    var minSum=act.reduce(function(s,a){return s+a.min;},0);
 
-    if(active.length>0){
-      html+='<div class="acct-head"><h2>Accounts</h2><select class="select" id="sortSel">'+
-        sopt('priority','Sort: Priority')+sopt('type','Sort: Type')+sopt('balance','Sort: Balance')+sopt('apr','Sort: APR')+
-        '</select></div>';
-      if(sortBy==='type'){
-        TYPE_ORDER.forEach(function(t){
-          var grp=active.filter(function(a){return (a.type||'other')===t;}).sort(function(a,b){return b.balance-a.balance;});
-          if(!grp.length)return;
-          var gt=grp.reduce(function(s,a){return s+a.balance;},0);
-          var c=tColor(t);
-          html+='<div class="group-head"><span class="type-chip" style="background:'+c+'22;color:'+c+';border-color:'+c+'66">'+tLabel(t)+'</span><span class="group-total">'+money(gt)+' across '+grp.length+'</span></div>';
-          grp.forEach(function(a){html+=acctCard(a,a.id===focusId,plan.payoff[a.id],0,1,false);});
-        });
-      } else {
-        var ordered=sortedActive();
-        var allowMove=(sortBy==='priority'&&strategy==='custom');
-        ordered.forEach(function(a,idx){html+=acctCard(a,a.id===focusId,plan.payoff[a.id],idx,ordered.length,allowMove);});
-      }
-    } else if(completed.length>0){
-      html+='<div class="debtfree">🎉 Every account is paid off — you\'re debt-free!</div>';
+    var html='<div class="type-header" style="border-left-color:'+c+'">'+
+      '<div class="th-title"><span class="type-chip" style="background:'+c+'22;color:'+c+';border-color:'+c+'66">'+tLabel(type)+'</span></div>'+
+      '<div class="th-sub">'+(act.length?money(total)+' across '+act.length+' active · min '+money(minSum)+'/mo':'No active balances')+
+      (comp.length?' · '+comp.length+' paid off':'')+'</div></div>';
+
+    if(act.length){
+      html+='<div class="acct-head"><h2>'+tShort(type)+'</h2><select class="select" id="sortSel">'+
+        sopt('priority','Sort: Priority')+sopt('balance','Sort: Balance')+sopt('apr','Sort: APR')+'</select></div>';
+      var ordered=sortTypeAccounts(act);
+      var allowMove=(sortBy==='priority'&&strategy==='custom');
+      ordered.forEach(function(a,idx){html+=acctCard(a,a.id===focusId,plan.payoff[a.id],idx,ordered.length,allowMove);});
+    } else {
+      html+='<div class="muted-line">No active accounts in this category.</div>';
     }
 
-    if(completed.length>0){
-      html+='<div class="acct-head"><h2>Paid off 🎉</h2><span class="group-total">'+completed.length+' cleared</span></div>';
-      completed.slice().sort(function(a,b){return (a.name||'').localeCompare(b.name||'');}).forEach(function(a){html+=completedCard(a);});
+    if(comp.length){
+      html+='<div class="acct-head"><h2>Paid off 🎉</h2><span class="group-total">'+comp.length+' cleared</span></div>';
+      comp.slice().sort(function(a,b){return (a.name||'').localeCompare(b.name||'');}).forEach(function(a){html+=completedCard(a);});
     }
-
-    el.innerHTML=html;
-    drawChart(plan,base);
-    drawPie();
-    wire();
+    return html;
   }
 
   function card(l,v,s,ac){return '<div class="card'+(ac?' accentcard':'')+'"><div class="label">'+l+'</div><div class="val">'+v+'</div><div class="sub">'+s+'</div></div>';}
@@ -572,6 +614,7 @@
     h+='<div class="progress"><span style="width:'+pct+'%;background:'+c+'"></span></div>';
     h+='<div class="prog-label"><b>'+money(paid)+'</b> of '+money(initial)+' paid off · '+pct+'%</div>';
     if(negAm)h+='<div class="warn-note"><span>⚠</span><span>Minimum doesn\'t cover interest — the balance grows about '+money2(monthlyInt-a.min)+'/mo at this rate. Throw extra at this one or raise the payment.</span></div>';
+    if(strategy==='cashflow'&&a.min>0)h+='<div class="cf-note">Clearing this frees <b>'+money2(a.min)+'/mo</b> of required payments.</div>';
     if(payoffMonth)h+='<div class="payoff-note">Projected payoff: <b>'+monthLabel(payoffMonth)+'</b> ('+durationText(payoffMonth)+')</div>';
     h+='<div class="pay-row">'+
       '<label class="pay-check'+(done?' done':'')+'" data-paytoggle="'+a.id+'"><span class="box">'+(done?'✓':'')+'</span>'+
@@ -622,7 +665,7 @@
     var leg=document.getElementById('pieLegend');
     if(grand<=0.005){if(leg)leg.innerHTML='<div style="color:var(--text-dim);font-size:13px">No outstanding balances 🎉</div>';if(pieChart){pieChart.destroy();pieChart=null;}return;}
     if(leg)leg.innerHTML=rows.map(function(r){var pct=Math.round(r.total/grand*100);var c=tColor(r.type);
-      return '<div class="leg-item"><span class="leg-dot" style="background:'+c+'"></span><span class="leg-name">'+tLabel(r.type)+'</span><span class="leg-val">'+money(r.total)+'<em>'+pct+'%</em></span></div>';}).join('');
+      return '<div class="leg-item" data-tab="'+r.type+'"><span class="leg-dot" style="background:'+c+'"></span><span class="leg-name">'+tLabel(r.type)+'</span><span class="leg-val">'+money(r.total)+'<em>'+pct+'%</em></span></div>';}).join('');
     if(pieChart)pieChart.destroy();
     pieChart=new Chart(canvas.getContext('2d'),{type:'doughnut',
       data:{labels:rows.map(function(r){return tLabel(r.type);}),datasets:[{data:rows.map(function(r){return r.total;}),
@@ -634,6 +677,7 @@
 
   /* ---------- wiring ---------- */
   function wire(){
+    Array.prototype.forEach.call(document.querySelectorAll('[data-tab]'),function(b){b.onclick=function(){activeTab=b.getAttribute('data-tab');store('dft_tab',activeTab);render();};});
     Array.prototype.forEach.call(document.querySelectorAll('.seg button'),function(b){b.onclick=function(){strategy=b.getAttribute('data-strat');persist();render();};});
     var sortSel=document.getElementById('sortSel');
     if(sortSel)sortSel.onchange=function(){sortBy=sortSel.value;persist();render();};
@@ -682,7 +726,7 @@
     document.getElementById('formErr').textContent='';
     var a=id?accounts.find(function(x){return x.id===id;}):null;
     document.getElementById('f_name').value=a?a.name:'';
-    document.getElementById('f_type').value=a?(a.type||'other'):'card';
+    document.getElementById('f_type').value=a?(a.type||'other'):(activeTab!=='dashboard'?activeTab:'card');
     document.getElementById('f_balance').value=a?a.balance:'';
     document.getElementById('f_original').value=(a&&a.initial!=null&&a.initial>a.balance)?a.initial:'';
     document.getElementById('f_apr').value=a?a.apr:'';
@@ -795,7 +839,7 @@
     var replace=accounts.length===0||confirm('Replace your current '+accounts.length+' account(s) with '+cleaned.length+' imported account(s)?\n\nOK = replace.  Cancel = add alongside existing.');
     if(replace){accounts=cleaned;customOrder=cleaned.map(function(x){return x.id;});}
     else{accounts=accounts.concat(cleaned);cleaned.forEach(function(x){customOrder.push(x.id);});}
-    if(data&&data.settings){if(typeof data.settings.extra==='number')extra=data.settings.extra;if(data.settings.strategy)strategy=data.settings.strategy;if(data.settings.sortBy)sortBy=data.settings.sortBy;}
+    if(data&&data.settings){if(typeof data.settings.extra==='number')extra=data.settings.extra;if(data.settings.strategy)strategy=data.settings.strategy;if(data.settings.sortBy&&data.settings.sortBy!=='type')sortBy=data.settings.sortBy;}
     persist();render();return true;
   }
   function importData(file){var r=new FileReader();r.onload=function(){importFromText(r.result);};r.readAsText(file);}
