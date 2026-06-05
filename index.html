@@ -32,13 +32,20 @@
     border-radius:9px;padding:8px 11px;cursor:pointer}
   .select:focus{outline:none;border-color:var(--accent)}
 
-  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
   .card{background:var(--surface);border:1px solid var(--border-soft);border-radius:var(--radius);padding:16px 17px}
   .card .label{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-faint);font-weight:600}
   .card .val{font-size:24px;font-weight:650;margin-top:7px;letter-spacing:-0.02em}
   .card .sub{font-size:12px;color:var(--text-dim);margin-top:3px}
   .card.accentcard{background:linear-gradient(160deg,#231416,#1a1316);border-color:#3a2422}
   .card.accentcard .val{color:#fff}
+
+  .backup-banner{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--surface);
+    border:1px solid var(--border-soft);border-radius:12px;padding:10px 14px;margin-bottom:18px;font-size:13px;color:var(--text-dim);flex-wrap:wrap}
+  .backup-banner.stale{border-color:#4a3a22;background:#1c1813}
+  .backup-banner .bk-info{flex:1;min-width:170px;display:flex;align-items:center;gap:8px}
+  .backup-banner .bk-info.bk-fresh{color:var(--good)}
+  .backup-banner .bk-ic{font-size:14px}
 
   .panel{background:var(--surface);border:1px solid var(--border-soft);border-radius:var(--radius);padding:20px;margin-bottom:18px}
   .panel h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);font-weight:600;margin-bottom:14px}
@@ -133,14 +140,14 @@
     </div>
     <div class="toolbar" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <button class="btn" id="importBtn" title="Load accounts from pasted text or a file">Import</button>
-      <button class="btn" id="exportBtn" title="Save your accounts to a file">Export</button>
+      <button class="btn" id="exportBtn" title="Save your accounts to a JSON file">Export</button>
       <button class="btn primary" id="addBtn">+ Add account</button>
       <input type="file" id="fileInput" accept="application/json,.json" style="display:none">
     </div>
   </header>
 
   <div id="content"></div>
-  <p class="footnote">Your data is saved privately in this browser. Nothing leaves your device.</p>
+  <p class="footnote">Your data is saved privately in this browser. Back up to Obsidian so a cleared cache can't wipe it.</p>
 </div>
 
 <!-- add/edit modal -->
@@ -180,11 +187,27 @@
     <h3>Import accounts</h3>
     <div class="field"><label>Paste your JSON here</label>
       <textarea id="pasteText" rows="9" placeholder='{ "accounts": [ ... ] }' style="width:100%;font-size:13px;font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:10px 12px;resize:vertical"></textarea>
-      <div class="hint">Paste the full text your finance bot gave you — including the opening { and closing }.</div></div>
+      <div class="hint">Paste the full text — including the opening { and closing }. A backup's JSON block works too.</div></div>
     <div class="modal-actions">
       <button class="btn" id="pasteFile">Load a file</button>
       <button class="btn" id="pasteCancel">Cancel</button>
       <button class="btn primary" id="pasteImport">Import</button>
+    </div>
+  </div>
+</div>
+
+<!-- backup fallback modal -->
+<div class="overlay" id="obsidianOverlay">
+  <div class="modal" style="max-width:560px">
+    <h3>Save backup</h3>
+    <p style="font-size:12.5px;color:var(--text-dim);margin:-6px 0 16px">Sharing isn't available here, so copy or download the Markdown and drop it into your Obsidian vault.</p>
+    <div class="field"><label>Backup file (Markdown)</label>
+      <textarea id="ob_preview" rows="11" readonly style="width:100%;font-size:12px;font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--surface);border:1px solid var(--border);color:var(--text-dim);border-radius:9px;padding:10px 12px;resize:vertical"></textarea></div>
+    <div class="err" id="ob_status" style="color:var(--good)"></div>
+    <div class="modal-actions" style="flex-wrap:wrap">
+      <button class="btn" id="ob_copy">Copy</button>
+      <button class="btn" id="ob_download">Download .md</button>
+      <button class="btn primary" id="ob_close">Close</button>
     </div>
   </div>
 </div>
@@ -200,6 +223,7 @@
     other:{label:'Other',color:'#8a8a93'}
   };
   var TYPE_ORDER=['card','loan','bnpl','other'];
+  var FILENAME='debt-tracker-backup.md';
 
   /* ---------- storage ---------- */
   var mem={};
@@ -212,9 +236,9 @@
   var strategy=load('dft_strategy','avalanche');
   var sortBy=load('dft_sort','priority');
   var customOrder=load('dft_order',accounts.map(function(a){return a.id;}));
+  var lastBackup=load('dft_lastbackup',null);
   var editingId=null, chart=null, pieChart=null;
 
-  // migrate older records
   accounts.forEach(function(a){
     if(!a.type) a.type='other';
     if(a.initial==null) a.initial=a.balance;
@@ -239,6 +263,17 @@
     if(s.indexOf('bnpl')>=0||s.indexOf('buynow')>=0||s.indexOf('installment')>=0||s.indexOf('klarna')>=0||s.indexOf('affirm')>=0||s.indexOf('afterpay')>=0)return 'bnpl';
     if(s.indexOf('loan')>=0||s.indexOf('mortgage')>=0||s.indexOf('auto')>=0||s.indexOf('student')>=0)return 'loan';
     return 'other';}
+  function timeSince(iso){
+    var t=new Date(iso).getTime();if(isNaN(t))return '';
+    var s=Math.floor((Date.now()-t)/1000);
+    if(s<45)return 'just now';
+    var m=Math.floor(s/60);if(m<60)return m+' minute'+(m===1?'':'s')+' ago';
+    var h=Math.floor(m/60);if(h<24)return h+' hour'+(h===1?'':'s')+' ago';
+    var d=Math.floor(h/24);if(d<30)return d+' day'+(d===1?'':'s')+' ago';
+    var mo=Math.floor(d/30);return mo+' month'+(mo===1?'':'s')+' ago';
+  }
+  function isStale(){if(!lastBackup)return true;return (Date.now()-new Date(lastBackup).getTime())>7*86400000;}
+  function bkText(){if(!lastBackup)return 'Not backed up yet — your data lives only in this browser.';return 'Backed up '+timeSince(lastBackup)+'.';}
 
   /* ---------- priority ---------- */
   function priorityList(accts){
@@ -299,6 +334,12 @@
     return accounts.slice().sort(function(a,b){return (a.balance-b.balance)||(b.apr-a.apr);});
   }
 
+  function bannerHTML(){
+    return '<div class="backup-banner'+(isStale()?' stale':'')+'">'+
+      '<span class="bk-info'+(lastBackup&&!isStale()?' bk-fresh':'')+'"><span class="bk-ic">'+(lastBackup&&!isStale()?'✓':'⤓')+'</span>'+bkText()+'</span>'+
+      '<button class="btn sm" id="bannerBackupBtn">Save to Obsidian</button></div>';
+  }
+
   function render(){
     if(chart){chart.destroy();chart=null;}
     if(pieChart){pieChart.destroy();pieChart=null;}
@@ -325,6 +366,8 @@
     html+=card('Monthly outlay',money(minTotal+extra),money(minTotal)+' min + '+money(extra)+' extra');
     html+='</div>';
 
+    html+=bannerHTML();
+
     if(!plan.stalled&&!base.stalled&&extra>0){
       var ms=base.months-plan.months, is=base.interest-plan.interest;
       if(ms>0||is>1) html+='<div class="compare"><span class="ic">⚡</span><div>With your plan you\'ll be debt-free <b>'+durationText(ms)+' sooner</b> and save <b>'+money(is)+'</b> in interest versus paying only the minimums.</div></div>';
@@ -332,7 +375,6 @@
       html+='<div class="compare"><span class="ic">⚠️</span><div>At this payment level your balance isn\'t shrinking — interest is outpacing payments. Try increasing the extra amount.</div></div>';
     }
 
-    // strategy + extra
     html+='<div class="panel"><h2>Payoff strategy</h2><div class="seg">'+
       segBtn('avalanche','Avalanche')+segBtn('snowball','Snowball')+segBtn('custom','Custom')+'</div>';
     html+='<div class="strat-desc">'+STRAT_DESC[strategy]+'</div>';
@@ -343,18 +385,15 @@
       '<div class="slider-wrap"><input type="range" id="extraSlide" min="0" max="'+sliderMax+'" step="10" value="'+Math.min(extra,sliderMax)+'">'+
       '<div class="slider-labels"><span>extra per month</span><span>'+money(sliderMax)+'</span></div></div></div></div>';
 
-    // timeline chart
     html+='<div class="chart-panel"><div class="chart-head"><h2>Balance over time</h2>'+
       '<div class="legend"><span><i style="background:var(--accent-bright)"></i>Your plan</span>'+
       '<span><i style="background:#5a5a63"></i>Minimums only</span></div></div>'+
       '<div class="chart-box"><canvas id="chart"></canvas></div></div>';
 
-    // pie chart
     html+='<div class="chart-panel"><div class="chart-head"><h2>Debt by type</h2></div>'+
       '<div class="pie-row"><div class="pie-box"><canvas id="pie"></canvas></div>'+
       '<div class="pie-legend" id="pieLegend"></div></div></div>';
 
-    // accounts
     html+='<div class="acct-head"><h2>Accounts</h2><select class="select" id="sortSel">'+
       sopt('priority','Sort: Priority')+sopt('type','Sort: Type')+sopt('balance','Sort: Balance')+sopt('apr','Sort: APR')+
       '</select></div>';
@@ -450,6 +489,8 @@
     Array.prototype.forEach.call(document.querySelectorAll('.seg button'),function(b){b.onclick=function(){strategy=b.getAttribute('data-strat');persist();render();};});
     var sortSel=document.getElementById('sortSel');
     if(sortSel)sortSel.onchange=function(){sortBy=sortSel.value;persist();render();};
+    var bb=document.getElementById('bannerBackupBtn');
+    if(bb)bb.onclick=doBackup;
 
     var num=document.getElementById('extraNum'),slide=document.getElementById('extraSlide');
     function setExtra(v){extra=Math.max(0,Math.round(v));persist();render();}
@@ -483,7 +524,7 @@
     drawChart(plan,base);
   }
 
-  /* ---------- modal ---------- */
+  /* ---------- add/edit modal ---------- */
   var overlay=document.getElementById('overlay');
   function openModal(id){
     editingId=id||null;
@@ -523,14 +564,18 @@
     else{var nid=uid();accounts.push({id:nid,name:name,type:type,balance:bal,initial:initial,apr:apr,min:min});customOrder.push(nid);}
     persist();closeModal();render();
   };
-  document.addEventListener('keydown',function(e){if(e.key==='Escape'){if(overlay.classList.contains('show'))closeModal();var po=document.getElementById('pasteOverlay');if(po.classList.contains('show'))po.classList.remove('show');}});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'){
+    if(overlay.classList.contains('show'))closeModal();
+    var po=document.getElementById('pasteOverlay');if(po.classList.contains('show'))po.classList.remove('show');
+    if(obOverlay.classList.contains('show'))obOverlay.classList.remove('show');
+  }});
 
   /* ---------- export / import ---------- */
   function exportData(){
     if(accounts.length===0){alert('Add at least one account before exporting.');return;}
     var payload={version:2,exportedAt:new Date().toISOString(),
       accounts:accounts.map(function(a){return {name:a.name,type:a.type,balance:a.balance,initial:a.initial,apr:a.apr,min:a.min};}),
-      settings:{extra:extra,strategy:strategy}};
+      settings:{extra:extra,strategy:strategy,sortBy:sortBy}};
     var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
     var url=URL.createObjectURL(blob),link=document.createElement('a');
     link.href=url;link.download='debt-tracker-'+new Date().toISOString().slice(0,10)+'.json';
@@ -557,7 +602,7 @@
     var replace=accounts.length===0||confirm('Replace your current '+accounts.length+' account(s) with '+cleaned.length+' imported account(s)?\n\nOK = replace.  Cancel = add alongside existing.');
     if(replace){accounts=cleaned;customOrder=cleaned.map(function(x){return x.id;});}
     else{accounts=accounts.concat(cleaned);cleaned.forEach(function(x){customOrder.push(x.id);});}
-    if(data&&data.settings){if(typeof data.settings.extra==='number')extra=data.settings.extra;if(data.settings.strategy)strategy=data.settings.strategy;}
+    if(data&&data.settings){if(typeof data.settings.extra==='number')extra=data.settings.extra;if(data.settings.strategy)strategy=data.settings.strategy;if(data.settings.sortBy)sortBy=data.settings.sortBy;}
     persist();render();return true;
   }
   function importData(file){var r=new FileReader();r.onload=function(){importFromText(r.result);};r.readAsText(file);}
@@ -569,6 +614,61 @@
   document.getElementById('pasteImport').onclick=function(){if(importFromText(document.getElementById('pasteText').value.trim()))pasteOverlay.classList.remove('show');};
   document.getElementById('pasteFile').onclick=function(){document.getElementById('fileInput').click();};
   document.getElementById('fileInput').addEventListener('change',function(e){if(e.target.files&&e.target.files[0]){importData(e.target.files[0]);pasteOverlay.classList.remove('show');e.target.value='';}});
+
+  /* ---------- backup to Obsidian (Web Share API + fallback) ---------- */
+  var obOverlay=document.getElementById('obsidianOverlay');
+  function backupData(){
+    return {app:'Debt Freedom Tracker',version:2,exportedAt:new Date().toISOString(),
+      accounts:accounts.map(function(a){return {name:a.name,type:a.type,balance:a.balance,initial:a.initial,apr:a.apr,min:a.min};}),
+      settings:{extra:extra,strategy:strategy,sortBy:sortBy}};
+  }
+  function buildMarkdown(){
+    var d=backupData();
+    var when=new Date().toLocaleString('en-US',{month:'long',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});
+    return '# Debt Tracker Backup\n\n'+
+      'Last updated: '+when+'\n\n'+
+      'To restore: open the app, tap **Import**, and paste everything inside the code block below.\n\n'+
+      '```json\n'+JSON.stringify(d,null,2)+'\n```\n';
+  }
+  function flash(msg){var b=document.getElementById('ob_status');if(b){b.textContent=msg;setTimeout(function(){b.textContent='';},2600);}}
+  function markBackedUp(){
+    lastBackup=new Date().toISOString();store('dft_lastbackup',lastBackup);
+    var banner=document.querySelector('.backup-banner');
+    if(banner){banner.classList.remove('stale');var info=banner.querySelector('.bk-info');
+      if(info){info.classList.add('bk-fresh');info.innerHTML='<span class="bk-ic">✓</span>'+bkText();}}
+  }
+  function openFallback(md){
+    var ta=document.getElementById('ob_preview');if(ta)ta.value=md;
+    document.getElementById('ob_status').textContent='';
+    obOverlay.classList.add('show');
+  }
+  function doBackup(){
+    if(accounts.length===0){alert('Add at least one account before backing up.');return;}
+    var md=buildMarkdown();
+    var file;
+    try{file=new File([md],FILENAME,{type:'text/markdown'});}catch(e){openFallback(md);return;}
+    if(navigator.canShare&&navigator.canShare({files:[file]})&&navigator.share){
+      navigator.share({files:[file],title:'Debt Tracker Backup'})
+        .then(function(){markBackedUp();})
+        .catch(function(err){if(err&&err.name==='AbortError')return;openFallback(md);});
+    } else {
+      openFallback(md);
+    }
+  }
+  document.getElementById('ob_copy').onclick=function(){
+    var ta=document.getElementById('ob_preview');ta.focus();ta.select();
+    var ok=false;try{ok=document.execCommand('copy');}catch(e){}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(ta.value).then(function(){flash('Copied to clipboard.');},function(){flash(ok?'Copied to clipboard.':'Select the text above and copy manually.');});}
+    else flash(ok?'Copied to clipboard.':'Select the text above and copy manually.');
+  };
+  document.getElementById('ob_download').onclick=function(){
+    var blob=new Blob([document.getElementById('ob_preview').value],{type:'text/markdown'});
+    var url=URL.createObjectURL(blob),link=document.createElement('a');
+    link.href=url;link.download=FILENAME;document.body.appendChild(link);link.click();document.body.removeChild(link);URL.revokeObjectURL(url);
+    flash('Downloaded '+FILENAME);
+  };
+  document.getElementById('ob_close').onclick=function(){obOverlay.classList.remove('show');};
+  obOverlay.addEventListener('click',function(e){if(e.target===obOverlay)obOverlay.classList.remove('show');});
 
   accounts.forEach(function(a){if(customOrder.indexOf(a.id)<0)customOrder.push(a.id);});
   render();
